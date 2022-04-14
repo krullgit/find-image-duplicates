@@ -1,3 +1,9 @@
+# --------------------------------------------------------
+# Duplicate Detection
+# Licensed under The GPL2 License [see LICENSE for details]
+# Written by Matthes Krull
+# --------------------------------------------------------
+
 from numba import njit
 import numpy as np
 import time
@@ -60,9 +66,6 @@ def pairwise_combs_numba(array):
     Returns:
         list: Numpy matrix with shape (n,2) (all permutations)
     """
-    # https://localcoder.org/fast-combinations-without-replacement-for-arrays-numpy-python
-    # Computes all permutations between a & a, without repetitions.
-    # 10x faster than "itertools.combinations"
 
     n = len(array)
     L = n * (n - 1) // 2
@@ -96,7 +99,7 @@ class ProgressBar:
 
     def step(self, step, filenames_indices_deleted):
         # logs the progress like this:
-        # Progress: [0.0003%, 2/582660] Total-time(h:m:s): 0:0:37 FPS: 6000.00
+        # Progress: [93.0647%, 542251/582660] Total-time(h:m:s): 0:0:6 FPS: 77464.42 Deleted-Images: 474
         time_now = time.time()
         if time.time() - self.time_logged > self.minutes * 60 or step == 0:
             hours = int((time_now - self.time_start) / (60 * 60)) % (60 * 60)

@@ -18,13 +18,11 @@ import utils
 
 
 class RemoveDuplicateImages:
-    """_summary_
-    This class can remove duplicated images.
-    """
+    """This class can remove duplicated images."""
 
     def __init__(self):
 
-        # Log all uncaught exceptions
+        # Log all exceptions
         sys.excepthook = self.log_all_exceptions
 
         # Set up logger
@@ -41,21 +39,17 @@ class RemoveDuplicateImages:
         # Merge args from commands line and config.py
         _, self.config = utils.parse_args()
 
-        # Get area of image
+        # Get area of images (after it will be rescaled)
         self.IMG_AREA = self.config.AUG.IMG_RESCALE_SIZE**2
 
     def log_all_exceptions(self, type, value, tb):
-        """_summary_
-        Logs all exceptions.
-        """
+        """Logs all exceptions including stack trace"""
         for line in traceback.TracebackException(type, value, tb).format(chain=True):
             self.logger.exception(line)
         self.logger.exception(value)
 
     def remove_duplicates(self):
-        """_summary_
-        Removes all duplicates in the folder specified in config.DATA.PATH_DATASET
-        """
+        """Removes all duplicates in the folder specified in config.DATA.PATH_DATASET"""
 
         # Get all names of images in a folder and sort them
         self.logger.info(
@@ -66,17 +60,27 @@ class RemoveDuplicateImages:
         )
         self.logger.info(f"Found Images: {len(filenames)}")
 
-        # Get all permutations of the images
-        # Creating a list of indices for the filename to speed up look-ups
+        # Creating a list of indices for the filenames to speed up look-ups
         filenames_indices = np.arange(0, len(filenames))
+        # Get all permutations of the images
         filenames_permutations = utils.pairwise_combs_numba(np.array(filenames_indices))
 
         # Load all images into memory (crucial for speed)
         self.logger.info(f"Load all images into memory and rescale.")
         imgs_cached = []  # cached images
-        imgs_paths = []  # cached images paths
-        imgs_sizes = []  # cached images sizes
+        imgs_paths = []  # cached image paths
+        imgs_sizes = []  # cached image sizes
+        imgs_camera_names = []  # cached image camer names
         for filename in filenames:
+            if "-" in filename:
+                imgs_camera_names.append(filename.split("-")[0])
+            elif "_" in filename:
+                imgs_camera_names.append(filename.split("_")[0])
+            else:
+                imgs_camera_names.append("")
+                self.logger.warning(f"Bad file name -> unclear delimiter: {filename}")
+            if "-" in filename and "_" in filename:
+                self.logger.warning(f"Bad file name -> unclear delimiter: {filename}")
             img_path = self.config.DATA.PATH_DATASET + filename
             imgs_paths.append(img_path)
             img = cv2.imread(img_path)
@@ -98,7 +102,6 @@ class RemoveDuplicateImages:
                 )
                 imgs_sizes.append(0)
             imgs_cached.append(img)
-        imgs_cached = np.array(imgs_cached)
 
         # Set up progress bar
         time_start = time.time()
@@ -109,6 +112,9 @@ class RemoveDuplicateImages:
         assert len(filenames) == len(imgs_cached), "Image(s) got lost!"
         assert len(filenames) == len(imgs_paths), "Image path(s) got lost!"
         assert len(filenames) == len(imgs_sizes), "Image size(s) got lost!"
+        assert len(filenames) == len(
+            imgs_camera_names
+        ), "Image camera name(s) got lost!"
 
         # List, which contains all deleted image indices, so we will not have to process them twice
         filenames_indices_deleted = np.empty((0), dtype=int)
@@ -117,6 +123,10 @@ class RemoveDuplicateImages:
         for i, (img_a_idx, img_b_idx) in enumerate(filenames_permutations):
 
             progress_bar.step(i, filenames_indices_deleted)
+
+            # If image was not taken by the same camera -> do not compare
+            if imgs_camera_names[img_a_idx] != imgs_camera_names[img_b_idx]:
+                continue
 
             # If either of the images was deleted already -> skip
             if (filenames_indices_deleted == img_a_idx).any() or (
@@ -128,29 +138,19 @@ class RemoveDuplicateImages:
             img_b = imgs_cached[img_b_idx]
 
             # Delete images that are None or too small
-            if img_a is None:
+            if img_a is None or (imgs_sizes[img_a_idx] < self.config.DATA.IMG_MIN_AREA):
                 filenames_indices_deleted = np.append(
                     filenames_indices_deleted, img_a_idx
                 )
                 utils.delete_file(imgs_paths[img_a_idx], self.logger)
+                self.logger.info(f"Invalid File deleted: {imgs_paths[img_a_idx]}")
                 continue
-            if img_b is None:
+            if img_b is None or (imgs_sizes[img_b_idx] < self.config.DATA.IMG_MIN_AREA):
                 filenames_indices_deleted = np.append(
                     filenames_indices_deleted, img_b_idx
                 )
                 utils.delete_file(imgs_paths[img_b_idx], self.logger)
-                continue
-            if imgs_sizes[img_a_idx] < self.config.DATA.IMG_MIN_AREA:
-                filenames_indices_deleted = np.append(
-                    filenames_indices_deleted, img_a_idx
-                )
-                utils.delete_file(imgs_paths[img_a_idx], self.logger)
-                continue
-            if imgs_sizes[img_b_idx] < self.config.DATA.IMG_MIN_AREA:
-                filenames_indices_deleted = np.append(
-                    filenames_indices_deleted, img_b_idx
-                )
-                utils.delete_file(imgs_paths[img_b_idx], self.logger)
+                self.logger.info(f"Invalid File deleted: {imgs_paths[img_b_idx]}")
                 continue
 
             # utils.show_image([np.append(img_a, img_b, axis=1)], ["original"], duration=2000)
