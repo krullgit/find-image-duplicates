@@ -17,12 +17,13 @@ def parse_args():
     parser = argparse.ArgumentParser(
         "Delete similar images in folder with cv2", add_help=False
     )
-
+    
     # easy config modification
     parser.add_argument(
         "--path-dataset",
         type=str,
         required=True,
+        default=None,
         metavar="PATH",
         help="path to dataset",
     )
@@ -131,8 +132,7 @@ def show_image(imgs, imgnames, duration=1000):
     cv2.waitKey(duration)
     cv2.destroyAllWindows()
 
-
-def get_all_images_in_folder(folder):
+def get_all_images_in_folder(folder, logger):
     """_summary_
         Return all images in folder (sorted)
     Args:
@@ -141,12 +141,20 @@ def get_all_images_in_folder(folder):
     Returns:
         list: Contains all images in folder
     """
-    filenames = []
-    for file in os.listdir(os.fsencode(folder)):
-        filename = os.fsdecode(file)
-        if filename.endswith((".jpeg", ".jpg", ".png", ".gif")):
-            filenames.append(filename)
-    filenames.sort()
+    
+    try:
+        filenames = []
+        for file in os.listdir(os.fsencode(folder)):
+            filename = os.fsdecode(file)
+            if filename.endswith((".jpeg", ".jpg", ".png", ".gif")):
+                filenames.append(filename)
+        filenames.sort()
+    except TypeError as error:
+        logger.error(f"config.DATA.PATH_DATASET must be a string. Got: {folder}")
+        raise
+    except FileNotFoundError as error:
+        logger.error(f"config.DATA.PATH_DATASET is not a valid path. Got: {folder}")
+        raise
     return filenames  # now you have the filenames and can do something with them
 
 def delete_file(path, logger):
