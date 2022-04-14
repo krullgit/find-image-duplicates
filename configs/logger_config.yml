@@ -1,0 +1,26 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+  simple:
+    format: '[%(asctime)s: %(levelname)s] %(message)s'
+
+  verbose:
+    format: '[%(asctime)s: %(levelname)s: %(name)s] %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simple
+    stream: ext://sys.stdout
+
+  file_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: verbose
+    filename: test.log
+    mode: a
+
+root:
+  level: INFO
+  handlers: [console, file_handler]
