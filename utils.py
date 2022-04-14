@@ -8,7 +8,7 @@ import os
 
 
 def parse_args():
-    """_summary_
+    """
         Merges the command line configs with the ones form the config file
     Returns:
         args: Args from command line (not really needed)
@@ -50,7 +50,7 @@ def parse_args():
 
 @njit
 def pairwise_combs_numba(array):
-    """_summary_
+    """
         https://localcoder.org/fast-combinations-without-replacement-for-arrays-numpy-python
         Computes all permutations between a & a, without repetitions, order not important.
         10x faster than "itertools.combinations"
@@ -78,12 +78,10 @@ def pairwise_combs_numba(array):
 
 
 class ProgressBar:
-    """_summary_
-    A simple progessbar that can be used with logger.
-    """
+    """A simple progessbar that can be used with logger."""
 
     def __init__(self, steps_total, logger, minutes=1):
-        """_summary_
+        """
 
         Args:
             steps_total (int): How many steps are there in total
@@ -119,8 +117,7 @@ class ProgressBar:
 
 
 def show_image(imgs, imgnames, duration=1000):
-    """_summary_
-        Displayes a list of images and their arrording names
+    """Displayes a list of images and their arrording names
 
     Args:
         imgs (ordered collections): Images
@@ -134,8 +131,8 @@ def show_image(imgs, imgnames, duration=1000):
 
 
 def get_all_images_in_folder(folder, logger=None):
-    """_summary_
-        Return all images in folder (sorted)
+    """Return all images in folder (sorted)
+
     Args:
         folder (string): Path to image folder
 
