@@ -32,7 +32,7 @@
   </ol>
 </details> 
 
-![-----------------------------------------------------](images_readme/sep2.png)
+![-----------------------------------------------------](docs/readme_images/sep2.png)
 
 ## Quick start
 <p id="quick_start"></p>
@@ -49,7 +49,7 @@ Run:
 python remove_duplicate_images.py --path-dataset PATH_DATASET
 ```
 
-![-----------------------------------------------------](images_readme/sep2.png)
+![-----------------------------------------------------](docs/readme_images/sep2.png)
 
 ## Usage
 <p id="usage"></p>
@@ -63,22 +63,22 @@ There are two places to find configs. The main config is in <strong>config.py</s
 <p id="docker"></p>
 No docker container provided yet.
 
-![-----------------------------------------------------](images_readme/sep2.png)
+![-----------------------------------------------------](docs/readme_images/sep2.png)
 
 ## Troubleshooting
 <p id="troubleshooting"></p>
 
 
-![-----------------------------------------------------](images_readme/sep2.png)
+![-----------------------------------------------------](docs/readme_images/sep2.png)
 
 ## Roadmap
 <p id="roadmap"></p>
 
 
-![-----------------------------------------------------](images_readme/sep2.png)
+![-----------------------------------------------------](docs/readme_images/sep2.png)
 
 
 ## Acknowledgements
 <p id="acknowledgements"></p>
 
-![-----------------------------------------------------](images_readme/sep2.png)
+![-----------------------------------------------------](docs/readme_images/sep2.png)
