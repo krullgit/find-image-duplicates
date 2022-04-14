@@ -46,7 +46,7 @@ class RemoveDuplicateImages:
 
     def log_all_exceptions(self, type, value, tb):
         """_summary_
-            Logs all exceptions.
+        Logs all exceptions.
         """
         for line in traceback.TracebackException(type, value, tb).format(chain=True):
             self.logger.exception(line)
@@ -70,11 +70,6 @@ class RemoveDuplicateImages:
         # Creating a list of indices for the filename to speed up look-ups
         filenames_indices = np.arange(0, len(filenames))
         filenames_permutations = utils.pairwise_combs_numba(np.array(filenames_indices))
-
-        # debug
-        # path_deleted = os.path.join(config.DATA.PATH_DATASET, "deleted")
-        # if not os.path.exists(path_deleted):
-        #     os.makedirs(path_deleted)
 
         # Load all images into memory (crucial for speed)
         self.logger.info(f"Load all images into memory and rescale.")
@@ -196,11 +191,14 @@ class RemoveDuplicateImages:
                 )
 
                 # debug
-                # utils.show_image([np.append(img_a, img_b, axis=1)], [str(img_a_idx)+" "+str(img_b_idx)], duration=200)
+                # path_deleted = os.path.join(self.config.DATA.PATH_DATASET, "deleted")
+                # if not os.path.exists(path_deleted):
+                #     os.makedirs(path_deleted)
+                # # utils.show_image([np.append(img_a, img_b, axis=1)], [str(img_a_idx)+" "+str(img_b_idx)], duration=200)
                 # path = path_deleted +"/"+ str(img_a_idx)+"_"+str(img_b_idx) + ".jpg"
-                # img_out = np.append(img_a, img_b, axis=1)
-                # img_out = np.append(img_out, contour_img, axis=1)
-                # cv2.imwrite(path, img_out)
+                # # img_out = np.append(img_a, img_b, axis=1)
+                # # img_out = np.append(img_out, contour_img, axis=1)
+                # cv2.imwrite(path, imgs_cached[img_a_idx])
 
         # End program after finished
         time_now = time.time()

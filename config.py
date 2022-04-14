@@ -21,7 +21,7 @@ _C.DATA = CN()
 # Delete every image which has fewer pixels than this.
 _C.DATA.IMG_MIN_AREA = 2500
 # Set path to dataset.
-_C.DATA.PATH_DATASET = None
+_C.DATA.PATH_DATASET = os.path.join(str(os.getcwd()), "data/test_images/")
 
 # -----------------------------------------------------------------------------
 # Augmentation settings

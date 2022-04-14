@@ -7,7 +7,6 @@ import argparse
 import os
 
 
-
 def parse_args():
     """_summary_
         Merges the command line configs with the ones form the config file
@@ -18,12 +17,12 @@ def parse_args():
     parser = argparse.ArgumentParser(
         "Delete similar images in folder with cv2", add_help=False
     )
-    
+
     # easy config modification
     parser.add_argument(
         "--path-dataset",
         type=str,
-        required=True,
+        required=False,
         default=None,
         metavar="PATH",
         help="path to dataset",
@@ -133,6 +132,7 @@ def show_image(imgs, imgnames, duration=1000):
     cv2.waitKey(duration)
     cv2.destroyAllWindows()
 
+
 def get_all_images_in_folder(folder, logger=None):
     """_summary_
         Return all images in folder (sorted)
@@ -142,8 +142,17 @@ def get_all_images_in_folder(folder, logger=None):
     Returns:
         list: Contains all images in folder
     """
-    
+
     try:
+
+        if "data/test_images/" in folder:
+            if logger is not None:
+                logger.warning(f"Default data path is used: {folder}")
+            if logger is not None:
+                logger.warning(
+                    f"Specify own path with config.DATA.PATH_DATASET, or argument '--path-dataset'"
+                )
+
         filenames = []
         for file in os.listdir(os.fsencode(folder)):
             filename = os.fsdecode(file)
@@ -151,12 +160,15 @@ def get_all_images_in_folder(folder, logger=None):
                 filenames.append(filename)
         filenames.sort()
     except TypeError as error:
-        if logger is not None: logger.error(f"config.DATA.PATH_DATASET must be a string. Got: {folder}")
+        if logger is not None:
+            logger.error(f"config.DATA.PATH_DATASET must be a string. Got: {folder}")
         raise
     except FileNotFoundError as error:
-        if logger is not None: logger.error(f"config.DATA.PATH_DATASET is not a valid path. Got: {folder}")
+        if logger is not None:
+            logger.error(f"config.DATA.PATH_DATASET is not a valid path. Got: {folder}")
         raise
     return filenames  # now you have the filenames and can do something with them
+
 
 def delete_file(path, logger):
     try:
