@@ -7,6 +7,7 @@ import argparse
 import os
 
 
+
 def parse_args():
     """_summary_
         Merges the command line configs with the ones form the config file
@@ -52,7 +53,7 @@ def parse_args():
 def pairwise_combs_numba(array):
     """_summary_
         https://localcoder.org/fast-combinations-without-replacement-for-arrays-numpy-python
-        Computes all permutations between a & a, without repetitions.
+        Computes all permutations between a & a, without repetitions, order not important.
         10x faster than "itertools.combinations"
     Args:
         array (Sequence): The sequence which is permutated
@@ -132,7 +133,7 @@ def show_image(imgs, imgnames, duration=1000):
     cv2.waitKey(duration)
     cv2.destroyAllWindows()
 
-def get_all_images_in_folder(folder, logger):
+def get_all_images_in_folder(folder, logger=None):
     """_summary_
         Return all images in folder (sorted)
     Args:
@@ -150,10 +151,10 @@ def get_all_images_in_folder(folder, logger):
                 filenames.append(filename)
         filenames.sort()
     except TypeError as error:
-        logger.error(f"config.DATA.PATH_DATASET must be a string. Got: {folder}")
+        if logger is not None: logger.error(f"config.DATA.PATH_DATASET must be a string. Got: {folder}")
         raise
     except FileNotFoundError as error:
-        logger.error(f"config.DATA.PATH_DATASET is not a valid path. Got: {folder}")
+        if logger is not None: logger.error(f"config.DATA.PATH_DATASET is not a valid path. Got: {folder}")
         raise
     return filenames  # now you have the filenames and can do something with them
 

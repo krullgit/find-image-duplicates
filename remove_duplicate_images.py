@@ -111,9 +111,9 @@ class RemoveDuplicateImages:
             len(filenames_permutations), self.logger, minutes=0.1
         )
 
-        assert len(filenames) == len(imgs_cached)
-        assert len(filenames) == len(imgs_paths)
-        assert len(filenames) == len(imgs_sizes)
+        assert len(filenames) == len(imgs_cached), "Image(s) got lost!"
+        assert len(filenames) == len(imgs_paths), "Image path(s) got lost!"
+        assert len(filenames) == len(imgs_sizes), "Image size(s) got lost!"
 
         # List, which contains all deleted image indices, so we will not have to process them twice
         filenames_indices_deleted = np.empty((0), dtype=int)
@@ -208,7 +208,7 @@ class RemoveDuplicateImages:
         minutes = int((time_now - time_start) / 60) % 60
         seconds = int((time_now) - time_start) % 60
         self.logger.info(
-            f"- Process done - Total-time(h:m:s): {hours}:{minutes}:{seconds} Deleted-Images: {len(filenames_indices_deleted)}/{len(filenames)}"
+            f"DONE - all duplicates deleted. Total-time(h:m:s): {hours}:{minutes}:{seconds} Deleted-Images: {len(filenames_indices_deleted)}/{len(filenames)}"
         )
 
 
@@ -224,5 +224,4 @@ if __name__ == "__main__":
 # task could be distributed with spark or parallelize to use multiple cores
 # could use use structural_similarity() of scikit-image
 # maybe put option to disable caching to speed up debugging
-# I could put everything into a class and call it from a main method to povide better modularity
 # could provide a docker file for easy usage
