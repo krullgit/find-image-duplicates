@@ -11,6 +11,11 @@
 </tr>
 </table>
 
+<p align="center"> 
+  <img src="docs/readme_images/algo1.jpg" alt="demo">
+</p>
+
+
 
 ---
 

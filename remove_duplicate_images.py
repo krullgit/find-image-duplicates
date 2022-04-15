@@ -178,8 +178,8 @@ class RemoveDuplicateImages:
             # Calculate the similarity scores
             (
                 score,
-                res_cnts,
-                thresh,
+                _,
+                _, 
             ) = imaging_interview.compare_frames_change_detection(
                 img_a, img_b, self.IMG_AREA * self.config.MODEL.IMG_CONTOUR_THRESHOLD
             )
@@ -187,14 +187,19 @@ class RemoveDuplicateImages:
             # Remove images that are too similar
             img_change_percentage = score / self.IMG_AREA
             if img_change_percentage < self.config.MODEL.IMG_CHANGE_THRESHOLD:
-                utils.delete_file(imgs_paths[img_b_idx], self.logger)
+                # utils.delete_file(imgs_paths[img_b_idx], self.logger)
                 filenames_indices_deleted[img_b_idx] = True
 
                 # debug
                 # path_deleted = os.path.join(self.config.DATA.PATH_DATASET, "deleted")
                 # if not os.path.exists(path_deleted):
                 #     os.makedirs(path_deleted)
-                # # utils.show_image([np.append(img_a, img_b, axis=1)], [str(img_a_idx)+" "+str(img_b_idx)], duration=200)
+                # image_together = np.append(cv2.cvtColor(img_a,cv2.COLOR_GRAY2RGB), cv2.cvtColor(img_b,cv2.COLOR_GRAY2RGB), axis=1)
+                # image_together = np.append(image_together, cv2.cvtColor(return_absdiff,cv2.COLOR_GRAY2RGB), axis=1)
+                # image_together = np.append(image_together, cv2.cvtColor(return_threshold,cv2.COLOR_GRAY2RGB), axis=1)
+                # image_together = np.append(image_together, cv2.cvtColor(return_dilate,cv2.COLOR_GRAY2RGB), axis=1)
+                # image_together = np.append(image_together, return_cnts, axis=1)
+                # utils.show_image([image_together], [str(img_change_percentage)], duration=1000)
                 # path = path_deleted +"/"+ str(img_a_idx)+"_"+str(img_b_idx) + ".jpg"
                 # # img_out = np.append(img_a, img_b, axis=1)
                 # # img_out = np.append(img_out, contour_img, axis=1)
@@ -217,6 +222,4 @@ if __name__ == "__main__":
 
 
 # Notes:
-# sometimes important items like cars are not detected by the contour approach
 # could use use structural_similarity() of scikit-image
-# could provide a docker file for easy usage
