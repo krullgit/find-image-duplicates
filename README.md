@@ -77,7 +77,6 @@ python remove_duplicate_images.py --path-dataset PATH_DATASET
 
 ## Docker
 <p id="docker"></p>
-No docker container provided yet.
 
 ![-----------------------------------------------------](docs/readme_images/sep2.png)
 
