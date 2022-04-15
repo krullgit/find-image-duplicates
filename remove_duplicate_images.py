@@ -66,12 +66,16 @@ class RemoveDuplicateImages:
         filenames_permutations = utils.pairwise_combs_numba(np.array(filenames_indices))
 
         # Load all images into memory (crucial for speed)
-        self.logger.info(f"Load all images into memory and rescale.")
+        self.logger.info(f"START 'Load' - Load all images into memory and rescale.")
+        progress_bar_loader = utils.ProgressBar(
+            len(filenames)-1, self.logger, task="Load", interval=0.1
+        )
         imgs_cached = []  # cached images
         imgs_paths = []  # cached image paths
         imgs_sizes = []  # cached image sizes
         imgs_camera_names = []  # cached image camer names
-        for filename in filenames:
+        for i, filename in enumerate(filenames):
+            progress_bar_loader.step(i)
             if "-" in filename:
                 imgs_camera_names.append(filename.split("-")[0])
             elif "_" in filename:
@@ -103,12 +107,7 @@ class RemoveDuplicateImages:
                 imgs_sizes.append(0)
             imgs_cached.append(img)
 
-        # Set up progress bar
-        time_start = time.time()
-        progress_bar = utils.ProgressBar(
-            len(filenames_permutations), self.logger, minutes=0.1
-        )
-
+        self.logger.info(f"DONE 'Load'")
         assert len(filenames) == len(imgs_cached), "Image(s) got lost!"
         assert len(filenames) == len(imgs_paths), "Image path(s) got lost!"
         assert len(filenames) == len(imgs_sizes), "Image size(s) got lost!"
@@ -117,20 +116,27 @@ class RemoveDuplicateImages:
         ), "Image camera name(s) got lost!"
 
         # List, which contains all deleted image indices, so we will not have to process them twice
-        filenames_indices_deleted = np.empty((0), dtype=int)
+        filenames_indices_deleted = np.zeros((len(filenames)), dtype=bool)
+
+        # Set up progress bar
+        time_start = time.time()
+        progress_bar_delete = utils.ProgressBar(
+            len(filenames_permutations)-1, self.logger, task="Compare", interval=0.1
+        )
 
         # Iterate over all permutations
+        self.logger.info(f"START 'Compare' -  comparing / deleting images.")
         for i, (img_a_idx, img_b_idx) in enumerate(filenames_permutations):
 
-            progress_bar.step(i, filenames_indices_deleted)
+            progress_bar_delete.step(i, filenames_indices_deleted)
 
             # If image was not taken by the same camera -> do not compare
             if imgs_camera_names[img_a_idx] != imgs_camera_names[img_b_idx]:
                 continue
 
             # If either of the images was deleted already -> skip
-            if (filenames_indices_deleted == img_a_idx).any() or (
-                filenames_indices_deleted == img_b_idx
+            if (filenames_indices_deleted[img_a_idx]) or (
+                filenames_indices_deleted[img_b_idx]
             ).any():
                 continue
 
@@ -139,16 +145,12 @@ class RemoveDuplicateImages:
 
             # Delete images that are None or too small
             if img_a is None or (imgs_sizes[img_a_idx] < self.config.DATA.IMG_MIN_AREA):
-                filenames_indices_deleted = np.append(
-                    filenames_indices_deleted, img_a_idx
-                )
+                filenames_indices_deleted[img_a_idx] = True
                 utils.delete_file(imgs_paths[img_a_idx], self.logger)
                 self.logger.info(f"Invalid File deleted: {imgs_paths[img_a_idx]}")
                 continue
             if img_b is None or (imgs_sizes[img_b_idx] < self.config.DATA.IMG_MIN_AREA):
-                filenames_indices_deleted = np.append(
-                    filenames_indices_deleted, img_b_idx
-                )
+                filenames_indices_deleted[img_b_idx] = True
                 utils.delete_file(imgs_paths[img_b_idx], self.logger)
                 self.logger.info(f"Invalid File deleted: {imgs_paths[img_b_idx]}")
                 continue
@@ -186,9 +188,7 @@ class RemoveDuplicateImages:
             img_change_percentage = score / self.IMG_AREA
             if img_change_percentage < self.config.MODEL.IMG_CHANGE_THRESHOLD:
                 utils.delete_file(imgs_paths[img_b_idx], self.logger)
-                filenames_indices_deleted = np.append(
-                    filenames_indices_deleted, img_b_idx
-                )
+                filenames_indices_deleted[img_b_idx] = True
 
                 # debug
                 # path_deleted = os.path.join(self.config.DATA.PATH_DATASET, "deleted")
@@ -206,7 +206,7 @@ class RemoveDuplicateImages:
         minutes = int((time_now - time_start) / 60) % 60
         seconds = int((time_now) - time_start) % 60
         self.logger.info(
-            f"DONE - all duplicates deleted. Total-time(h:m:s): {hours}:{minutes}:{seconds} Deleted-Images: {len(filenames_indices_deleted)}/{len(filenames)}"
+            f"DONE 'Compare' - all duplicates deleted. Total-time(h:m:s): {hours}:{minutes}:{seconds} Deleted-Images: {filenames_indices_deleted.sum()}/{len(filenames)}"
         )
 
 
@@ -217,9 +217,6 @@ if __name__ == "__main__":
 
 
 # Notes:
-# images are videos. so it could be speed up by knowing where one video starts and ends
 # sometimes important items like cars are not detected by the contour approach
-# task could be distributed with spark or parallelize to use multiple cores
 # could use use structural_similarity() of scikit-image
-# maybe put option to disable caching to speed up debugging
 # could provide a docker file for easy usage

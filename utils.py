@@ -83,33 +83,35 @@ def pairwise_combs_numba(array):
 class ProgressBar:
     """A simple progessbar that can be used with logger."""
 
-    def __init__(self, steps_total, logger, minutes=1):
+    def __init__(self, steps_total, logger, task, interval=1):
         """
 
         Args:
             steps_total (int): How many steps are there in total
             logger: the "logging.getLogger(...)" object
-            minutes (int, optional): How often the progress is printed. Defaults to 1.
+            interval (int, optional): How often the progress is printed. Defaults to 1.
         """
         self.steps_total = steps_total
         self.time_start = time.time()
         self.time_logged = time.time()
-        self.minutes = minutes
+        self.interval = interval
         self.logger = logger
+        self.task = task
 
-    def step(self, step, filenames_indices_deleted):
+    def step(self, step, filenames_indices_deleted=None):
         # logs the progress like this:
         # Progress: [93.0647%, 542251/582660] Total-time(h:m:s): 0:0:6 FPS: 77464.42 Deleted-Images: 474
         time_now = time.time()
-        if time.time() - self.time_logged > self.minutes * 60 or step == 0:
+        if time.time() - self.time_logged > self.interval * 60 or step == 0:
             hours = int((time_now - self.time_start) / (60 * 60)) % (60 * 60)
             minutes = int((time_now - self.time_start) / 60) % 60
             seconds = int((time_now) - self.time_start) % 60
             fps = self.round((step) / (int((time_now - self.time_start)) + 1), 2)
             percentage = self.round((step / self.steps_total) * 100, 4)
-            self.logger.info(
-                f"Progress: [{percentage}%, {step}/{self.steps_total}] Total-time(h:m:s): {hours}:{minutes}:{seconds} FPS: {fps} Deleted-Images: {len(filenames_indices_deleted)}"
-            )
+            message = f"Progress '{self.task}': [{percentage}%, {step}/{self.steps_total}] Total-time(h:m:s): {hours}:{minutes}:{seconds} FPS: {fps}"
+            if filenames_indices_deleted is not None:
+                message + f" Deleted-Images: {filenames_indices_deleted.sum()}"
+            self.logger.info(message)
             self.time_logged = time.time()
 
     def round(self, nr, size=2):

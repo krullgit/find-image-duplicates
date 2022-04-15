@@ -27,6 +27,7 @@
     <li><a href="#config"> ➤ Config</a></li>
     <li><a href="#docker"> ➤ Docker</a></li>
     <li><a href="#troubleshooting"> ➤ Troubleshooting</a></li>
+    <li><a href="#tests"> ➤ Tests</a></li>
     <li><a href="#roadmap"> ➤ Roadmap</a></li>
     <li><a href="#acknowledgements"> ➤ Acknowledgements</a></li>
   </ol>
@@ -53,11 +54,21 @@ python remove_duplicate_images.py --path-dataset PATH_DATASET
 
 ## Usage
 <p id="usage"></p>
-The program can be run with the command line (see Quick start) or by instantiating the class (see main() in remove_duplicate_images.py)
+
+- The program can be run with the command line (see <a href="#quick_start"> Quick start</a>) or by instantiating the class RemoveDuplicateImages (see main() in remove_duplicate_images.py).
+
+- Images can have the following formats: ".jpeg", ".jpg", ".png", ".gif" 
+
+- Image names should start with the camera name, followed by "-" or "_": e.g.: c20_image1.jpg
+
+- Only images, coming from the same camera are compared
 
 ## Config
 <p id="config"></p>
-There are two places to find configs. The main config is in <strong>config.py</strong> and other configs (e.g. logger) are in the folder <strong>/configs</strong>.
+
+- There are two places to find configs: (1) <strong>config.py</strong> (2) <strong>/configs</strong> folder.
+
+- The sensitivity of the similarity filter can be adjusted with the arguments found under "Augmentation settings" and "Model settings" in <strong>config.py</strong> 
 
 ## Docker
 <p id="docker"></p>
@@ -67,6 +78,17 @@ No docker container provided yet.
 
 ## Troubleshooting
 <p id="troubleshooting"></p>
+
+![-----------------------------------------------------](docs/readme_images/sep2.png)
+
+## Tests
+<p id="tests"></p>
+
+Run tests:
+
+```sh
+python test.py
+```
 
 
 ![-----------------------------------------------------](docs/readme_images/sep2.png)
